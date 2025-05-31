@@ -20,4 +20,6 @@ __pycache__/
 .idea/
 
 /lqba/
-/all/
+/all/__pycache__/
+*.pyc
+*.pyo
