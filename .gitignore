@@ -1,0 +1,25 @@
+# Environment variables
+.env
+
+# Virtual environments
+/bambooenv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Database files
+*.db
+*.sqlite
+
+# Log files
+*.log
+
+# IDE files
+.vscode/
+.idea/
+
+/lqba/
+/all/__pycache__/
+*.pyc
+*.pyo

@@ -1,5 +1,9 @@
 ## Core Features & Functionality
 
+### Todo list
+
+- [ ] design the keyboards
+
 ### 1. Intelligent Consultation System
 
 **Features:**
@@ -8,7 +12,8 @@
 - [x] **Intelligent Consultation System** handles questions about disability accessibility, covering wheelchair-accessible entrances, adapted equipment, sensory-friendly zones, and providing visual guides with accessible pathways and activities.
 - [x] **Language Support**: German and English input/output
 - **Context Memory**: Maintain conversation continuity across interactions
-- **Emoji Integration**: Emotional expression and quick response options
+- [x]**Emoji Integration**: Emotional expression and quick response options
+- [ ] **Enhance language support** add more words to the list for language detection
 
 ### 2. Multimodal Booking System
 
