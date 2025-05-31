@@ -1,5 +1,5 @@
-import re
-from typing import Dict, List, Tuple, Optional
+from typing import Tuple, Optional
+from utils.language import detect_language
 
 QA_DATABASE = {
     "opening_hours": {
@@ -54,16 +54,6 @@ QA_DATABASE = {
 
 # Context memory for conversations
 user_context = {}
-
-def detect_language(text: str) -> str:
-    german_words = ["ich", "und", "der", "die", "das", "ist", "haben", "mit", "für", "auf", "zu", "öffnungszeiten", "spielplatz", "kaffee"]
-    english_words = ["the", "and", "is", "are", "have", "with", "for", "opening", "hours", "playground", "coffee"]
-    
-    text_lower = text.lower()
-    german_count = sum(1 for word in german_words if word in text_lower)
-    english_count = sum(1 for word in english_words if word in text_lower)
-    
-    return "de" if german_count > english_count else "en"
 
 def find_best_match(user_text: str) -> Tuple[Optional[str], int]:
     user_text_lower = user_text.lower()

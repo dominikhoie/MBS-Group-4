@@ -3,10 +3,28 @@ import logging
 from aiogram import Bot, Dispatcher, Router, types
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from responses import get_enhanced_response, get_accessibility_info, detect_language
+from qa_database import get_enhanced_response, get_accessibility_info
+from utils.language import detect_language
 
 import os
 from dotenv import load_dotenv
+
+# qa_database.py
+import sys
+import os
+print("Current working directory:", os.getcwd())
+print("Python path:", sys.path)
+
+try:
+    from utils.language import detect_language
+    print("Successfully imported detect_language")
+except ImportError as e:
+    print(f"Import error: {e}")
+    # 添加当前目录到路径
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, current_dir)
+    from utils.language import detect_language
+    print("Successfully imported after adding to path")
 
 logging.basicConfig(level=logging.INFO)
 
@@ -60,7 +78,8 @@ def get_quick_response_keyboard(language: str = "en"):
 # /start command
 @router.message(Command("start"))
 async def send_welcome(message: types.Message):
-    user_language = detect_language(message.text) if len(message.text) > 6 else "en"
+    if message.text:
+        user_language = detect_language(message.text) if len(message.text) > 6 else "en"
     
     if user_language == "de":
         welcome_text = """🎉 Willkommen beim Bamboolino Spielplatz Bot!
@@ -92,8 +111,9 @@ async def send_welcome(message: types.Message):
 @router.callback_query()
 async def handle_callback_query(callback_query: types.CallbackQuery):
     data = callback_query.data
-    language = data.split('_')[-1]  # Extract language from callback data
-    topic = data.replace(f'_{language}', '')  # Extract topic
+    if data:
+        language = data.split('_')[-1]  # Extract language from callback data
+        topic = data.replace(f'_{language}', '')  # Extract topic
     
     # Map callback data to query text
     query_map = {
