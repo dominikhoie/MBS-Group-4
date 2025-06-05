@@ -2,7 +2,7 @@
 .env
 
 # Virtual environments
-/bambooenv/
+bambooenv/
 
 # Python cache
 __pycache__/
@@ -19,7 +19,7 @@ __pycache__/
 .vscode/
 .idea/
 
-/lqba/
+lqba/
 /all/__pycache__/
 *.pyc
 *.pyo
