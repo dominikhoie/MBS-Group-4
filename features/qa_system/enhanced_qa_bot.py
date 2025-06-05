@@ -3,28 +3,18 @@ import logging
 from aiogram import Bot, Dispatcher, Router, types
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from qa_database import get_enhanced_response, get_accessibility_info
-from utils.language import detect_language
-
 import os
+import sys
 from dotenv import load_dotenv
 
-# qa_database.py
-import sys
-import os
-print("Current working directory:", os.getcwd())
-print("Python path:", sys.path)
 
-try:
-    from utils.language import detect_language
-    print("Successfully imported detect_language")
-except ImportError as e:
-    print(f"Import error: {e}")
-    # 添加当前目录到路径
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    sys.path.insert(0, current_dir)
-    from utils.language import detect_language
-    print("Successfully imported after adding to path")
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+sys.path.insert(0, project_root)
+
+from qa_data import get_enhanced_response, get_accessibility_info
+from utils.language import detect_language
+
+
 
 logging.basicConfig(level=logging.INFO)
 
