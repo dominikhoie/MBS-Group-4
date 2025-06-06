@@ -15,7 +15,8 @@ from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 
 from utils.language import detect_language
-from features.qa_system.qa_data import get_enhanced_response, get_accessibility_info
+from features.qa_system.qa_data import get_enhanced_response
+from features.accessibility.accessibility_feature import AccessibilityFeature
 from features.booking_system.booking_feature import BookingFeature
 from utils.text_messages import (
     welcome_text_de, welcome_text_en, help_text_en, help_text_de, 
@@ -44,7 +45,7 @@ voice_processor = VoiceProcessor()
 
 # Initialize features
 booking_feature = BookingFeature()
-# accessibility_feature = AccessibilityFeature()
+accessibility_feature = AccessibilityFeature()
 
 # main keyboard based on language
 def get_main_menu_keyboard(language: str='en') -> InlineKeyboardMarkup:
@@ -227,11 +228,24 @@ async def booking_callback(callback: types.CallbackQuery):
         error_text = "❌ Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut." if user_languages.get(user_id) == "de" else "❌ An error occurred. Please try again."
         await callback.message.edit_text(error_text)
         await callback.answer()
-
-#TODO
-@router.callback_query(F.data.startswith("accessibility_"))
+        
+@router.callback_query(F.data == "accessibility_menu")
 async def accessibility_callback(callback: types.CallbackQuery):
-    await callback.message.answer("On the way")
+    user_id = callback.from_user.id
+    language = user_languages.get(user_id, "en")
+
+    text = accessibility_feature.get_info_text(language)
+
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(
+            text="🔙 Zurück" if language == "de" else "🔙 Back",
+            callback_data="main_menu"
+        )]
+    ])
+
+    await callback.message.edit_text(text, reply_markup=keyboard)
+    await callback.answer()
+
 
 #TODO
 @router.callback_query(F.data.startswith("navigation_"))
@@ -286,7 +300,7 @@ async def handle_text_message(message: types.Message):
     if any(keyword in text for keyword in booking_keywords):
         await booking_feature.handle_text_booking(message, bot)
     elif any(keyword in text for keyword in accessibility_keywords):
-        response = get_accessibility_info(message.text, language)
+        response = accessibility_feature.get_info_text(language)
         keyboard = get_main_menu_keyboard(language)
         await message.answer(response, reply_markup=keyboard)
     else:
@@ -375,7 +389,7 @@ async def process_transcribed_text(message: types.Message, text: str, language: 
             text_message = TextMessage(message, text)
             await booking_feature.handle_text_booking(text_message, bot)
         elif any(keyword in text_lower for keyword in accessibility_keywords):
-            response = get_accessibility_info(text, language)
+            response = accessibility_feature.get_info_text(language)
             keyboard = get_main_menu_keyboard(language)
             await message.answer(response, reply_markup=keyboard)
         else:

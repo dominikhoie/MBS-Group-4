@@ -187,3 +187,19 @@ location_response_en = f"""📍 **Location received!**
 • Optimizing route...
 
 🔄 Full navigation coming soon!"""
+
+accessibility_text_de = (
+    "♿ Unser Indoor-Spielplatz ist barrierefrei zugänglich:\n"
+    "- Alle Bereiche sind mit dem Rollstuhl erreichbar\n"
+    "- Behindertengerechte Toiletten vorhanden\n"
+    "- Personal hilft bei Bedarf gerne weiter\n"
+    "- Spezielle Rückzugsräume für autistische Kinder\n"
+)
+
+accessibility_text_en = (
+    "♿ Our indoor playground is accessible:\n"
+    "- All areas are wheelchair-friendly\n"
+    "- Accessible toilets available\n"
+    "- Staff happy to assist if needed\n"
+    "- Special quiet zones for children with autism\n"
+)

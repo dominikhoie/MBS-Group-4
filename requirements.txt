@@ -3,8 +3,9 @@ aiogram==3.20.0
 python-dotenv==1.0.0
 
 # AI and speech processing
-openai==1.3.8
-openai-whisper==20231117
+# openai==1.3.8
+# openai-whisper==20231117
+git+https://github.com/openai/whisper.git
 
 # Audio processing
 pydub==0.25.1

@@ -23,3 +23,4 @@ lqba/
 /all/__pycache__/
 *.pyc
 *.pyo
+venv/
