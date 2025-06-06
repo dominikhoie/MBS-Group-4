@@ -156,21 +156,21 @@ Public transport: [Details]"""
 
 voice_response_de = """🎤 Sprachnachricht empfangen!
 
-Diese Funktion ist in Arbeit.
+✅ **Verfügbare Funktionen:**
+- 🗣️ Spracherkennung aktiviert
+- 🔊 Automatische Sprachanalyse
+- 🎯 Sprachgesteuerte Buchungen
 
-Geplante Features:
-• 🗣️ Spracherkennung
-• 🔊 Sprachantworten
-• 🎯 Sprachgesteuerte Buchungen""" 
+💬 Sprechen Sie einfach Ihre Frage!""" 
 
 voice_response_en="""🎤 Voice message received!
 
-This function is on the way.
+✅ **Available Features:**
+- 🗣️ Speech recognition enabled
+- 🔊 Automatic language analysis
+- 🎯 Voice-controlled bookings
 
-Planned features:
-• 🗣️ Speech recognition
-• 🔊 Voice responses
-• 🎯 Voice-controlled bookings"""
+💬 Just speak your question!"""
 
 location_response_de = f"""📍 **Standort empfangen!**
 

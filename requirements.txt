@@ -1,6 +1,25 @@
+# Core bot dependencies
 aiogram==3.20.0
 python-dotenv==1.0.0
-asyncio
-qrcode[pil]>=7.4.2
-Pillow>=10.0.0
-aiofiles>=23.0.0
+
+# AI and speech processing
+openai==1.3.8
+openai-whisper==20231117
+
+# Audio processing
+pydub==0.25.1
+
+# Image processing and QR codes
+qrcode[pil]==7.4.2
+Pillow==10.1.0
+
+# Web requests and utilities
+requests==2.31.0
+aiohttp==3.9.1
+
+# Data processing
+pandas==2.1.4
+numpy==1.24.3
+
+# Logging and development
+colorlog==6.8.0

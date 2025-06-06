@@ -22,6 +22,7 @@ from utils.text_messages import (
     contact_text_de, contact_text_en, voice_response_de, voice_response_en,
     location_response_de, location_response_en
 )
+from utils.voice_processor import VoiceProcessor
 
 logging.basicConfig(
     level=logging.INFO,
@@ -32,15 +33,14 @@ load_dotenv()
 
 # Bot configuration
 BOT_TOKEN = os.getenv('BOT_TOKEN')
-
 if not BOT_TOKEN:
     raise ValueError("BOT_TOKEN not found in environment variables")
-
 BOT_NAME = os.getenv('BOT_NAME', 'BambolinoBot')
 
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN))
 dp = Dispatcher()
 router = Router()
+voice_processor = VoiceProcessor()
 
 # Initialize features
 booking_feature = BookingFeature()
@@ -294,19 +294,98 @@ async def handle_text_message(message: types.Message):
         keyboard = get_main_menu_keyboard(language)
         await message.answer(response, reply_markup=keyboard)
     
-#TODO
 @router.message(F.voice)
 async def handle_voice_message(message: types.Message):
     user_id = message.from_user.id
     language = user_languages.get(user_id, "en")
 
-    if language=="de":
-        response=voice_response_de
-    else:
-        response=voice_response_en
+    if voice_processor is None:
+        if language == "de":
+            response = voice_response_de
+        else:
+            response = voice_response_en
+        
+        keyboard = get_main_menu_keyboard(language)
+        await message.answer(response, reply_markup=keyboard)
+        return
     
-    keyboard = get_main_menu_keyboard(language)
-    await message.answer(response, reply_markup=keyboard)
+    try:
+        processing_msg = "🎤 Verarbeite Sprachnachricht..." if language == "de" else "🎤 Processing voice message..."
+        status_message = await message.answer(processing_msg)
+        
+        # downloaded voice file
+        file_info = await bot.get_file(message.voice.file_id)
+        voice_file = await bot.download_file(file_info.file_path)
+        
+        # transcribe
+        transcribed_text, detected_lang = await voice_processor.transcribe_voice(voice_file.getvalue())
+        
+        if transcribed_text:
+            user_languages[user_id] = detected_lang
+            
+            await status_message.delete()
+            
+            transcript_msg = f"🗣️ {transcribed_text}" if detected_lang == "de" else f"🗣️ {transcribed_text}"
+            await message.answer(transcript_msg, parse_mode="Markdown")
+            
+            await process_transcribed_text(message, transcribed_text, detected_lang)
+        else:
+            error_msg = "❌ Spracherkennung fehlgeschlagen" if language == "de" else "❌ Voice recognition failed"
+            await status_message.edit_text(error_msg)
+            
+    except Exception as e:
+        logger.error(f"Voice processing error: {e}")
+        error_msg = "❌ Fehler bei der Sprachverarbeitung" if language == "de" else "❌ Voice processing error"
+        
+        try:
+            await status_message.edit_text(error_msg)
+        except:
+            await message.answer(error_msg)
+
+
+async def process_transcribed_text(message: types.Message, text: str, language: str):
+    user_id = message.from_user.id
+    text_lower = text.lower()
+
+    if not text or not isinstance(text, str):
+        logger.warning(f"Invalid transcribed text: {text}")
+        return
+    
+    booking_keywords = [
+        "book", "booking", "reserve", "reservation", "ticket", 
+        "buchen", "buchung", "reservierung", "ticket", "eintrittskarte"
+    ]
+    
+    accessibility_keywords = [
+        "accessibility", "disabled", "wheelchair", "barrierefreiheit", 
+        "behindert", "rollstuhl", "autism", "autismus", "sensory", "sensorisch"
+    ]
+
+    try:
+        if any(keyword in text_lower for keyword in booking_keywords):
+            # Create a new message-like object instead of modifying the frozen one
+            class TextMessage:
+                def __init__(self, original_message, text):
+                    self.text = text
+                    self.from_user = original_message.from_user
+                    self.chat = original_message.chat
+                    self.reply = original_message.reply
+                    self.answer = original_message.answer
+            
+            text_message = TextMessage(message, text)
+            await booking_feature.handle_text_booking(text_message, bot)
+        elif any(keyword in text_lower for keyword in accessibility_keywords):
+            response = get_accessibility_info(text, language)
+            keyboard = get_main_menu_keyboard(language)
+            await message.answer(response, reply_markup=keyboard)
+        else:
+            response = get_enhanced_response(text, str(user_id))
+            keyboard = get_main_menu_keyboard(language)
+            await message.answer(response, reply_markup=keyboard)
+    except Exception as e:
+        logger.error(f"Error processing transcribed text: {e}")
+        error_msg = "❌ Fehler bei der Textverarbeitung" if language == "de" else "❌ Error processing text"
+        await message.answer(error_msg)
 
 #TODO
 @router.message(F.location)
