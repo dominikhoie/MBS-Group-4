@@ -1,3 +1,9 @@
+# SETUP PROCESS:
+# add your BOT_TOKEN, BOT_NAME and LLM_API_KEY into .env
+# python -m venv .venv
+# .venv\Scripts\activate
+# pip install -r requirements.txt
+
 # Core bot dependencies
 aiogram==3.20.0
 python-dotenv==1.0.0
@@ -6,21 +12,27 @@ python-dotenv==1.0.0
 # openai==1.3.8
 # openai-whisper==20231117
 git+https://github.com/openai/whisper.git
+tiktoken==0.9.0
+torch==2.7.1
+numba==0.61.2
+llvmlite==0.44.0
 
 # Audio processing
 pydub==0.25.1
 
 # Image processing and QR codes
 qrcode[pil]==7.4.2
-Pillow==10.1.0
+Pillow==11.0.0
 
 # Web requests and utilities
 requests==2.31.0
-aiohttp==3.9.1
+aiohttp==3.11.18
+httpx==0.27.0
 
 # Data processing
-pandas==2.1.4
-numpy==1.24.3
+pandas==2.3.0
+numpy==2.2.0
 
 # Logging and development
 colorlog==6.8.0
+more-itertools==10.7.0
