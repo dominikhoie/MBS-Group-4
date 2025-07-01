@@ -21,7 +21,9 @@ Folgende Schritte müssen zur Ausführung beachtet werden.
 
 - Bennene die Datei `env.example` zu `.env` um
 - Füge deinen Telegram-Bot-Token in der `.env-Datei` ein:
-- `BOT_TOKEN=dein-telegram-token-hier`
+- `BOT_TOKEN=dein_telegram_bot_token_hier`
+- Füge deinen API-Schlüssel in der `.env-Datei` ein:
+- `LLM_API_KEY=dein_api_schlüssel_hier`
 
 ### 4. Bot starten
 
@@ -52,7 +54,9 @@ Please follow the steps below to run the project locally.
 
 - Rename the file `env.example` to `.env`
 - Insert your Telegram bot token into the `.env` file:
-- `BOT_TOKEN=your-telegram-bot-token-here`
+- `BOT_TOKEN=add_your_bot_token_here`
+- Insert your API key into the `.env` file:
+- `LLM_API_KEY=add_your_api_key_here`
 
 ### 4. Start the bot
 
