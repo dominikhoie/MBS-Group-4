@@ -278,6 +278,19 @@ async def handle_unhandled_callback(callback: types.CallbackQuery):
     logger.warning(f"Unhandled callback query: {callback.data} from user {callback.from_user.id}")
     await callback.answer("This function is not yet implemented.")
 
+
+# handle Markdown parsing errors
+async def send_message_safe(message: types.Message, text: str, reply_markup=None):
+    try:
+        # Sends a message using Markdown formatting.
+        await message.answer(text, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
+    except Exception as e:
+        # If a Markdown parsing error occurs (e.g., due to invalid characters),
+        logger.warning(f"Markdown-Parsing-Fehler – sende plain text: {e}")
+        # it falls back to sending the message as plain text.
+        await message.answer(text, reply_markup=reply_markup, parse_mode=None)
+
+
 @router.message(F.text)
 async def handle_text_message(message: types.Message):
     """Handle text messages"""
@@ -297,16 +310,35 @@ async def handle_text_message(message: types.Message):
         "behindert", "rollstuhl", "autism", "autismus", "sensory", "sensorisch"
     ]
 
+    qa_keywords = [
+    "öffnungszeiten", "opening hours", "einrichtungen", "facilities",
+    "café", "cafe", "sicherheit", "safety", "vegetarisch", "vegetarian"
+    ]
+
+
     if any(keyword in text for keyword in booking_keywords):
         await booking_feature.handle_text_booking(message, bot)
     elif any(keyword in text for keyword in accessibility_keywords):
         response = accessibility_feature.get_info_text(language)
         keyboard = get_main_menu_keyboard(language)
         await message.answer(response, reply_markup=keyboard)
-    else:
-        response = get_enhanced_response(message.text, str(user_id))
+    elif any(keyword in text for keyword in qa_keywords):
+        response = get_enhanced_response(text, str(user_id))
         keyboard = get_main_menu_keyboard(language)
         await message.answer(response, reply_markup=keyboard)
+    else:
+        from utils.llm_connector import query_llm
+
+        await message.answer("💬 Frage wird verarbeitet...")
+
+        llm_response = await query_llm(message.text, language)
+        
+        if not llm_response or "Fehler" in llm_response:
+            llm_response = "❌ Leider konnte keine Antwort generiert werden."
+
+        keyboard = get_main_menu_keyboard(language)
+        await send_message_safe(message, llm_response, reply_markup=keyboard)
+
     
 @router.message(F.voice)
 async def handle_voice_message(message: types.Message):
@@ -375,6 +407,11 @@ async def process_transcribed_text(message: types.Message, text: str, language: 
         "behindert", "rollstuhl", "autism", "autismus", "sensory", "sensorisch"
     ]
 
+    qa_keywords = [
+        "öffnungszeiten", "opening hours", "einrichtungen", "facilities",
+        "café", "cafe", "sicherheit", "safety", "vegetarisch", "vegetarian"
+    ]
+
     try:
         if any(keyword in text_lower for keyword in booking_keywords):
             # Create a new message-like object instead of modifying the frozen one
@@ -392,10 +429,23 @@ async def process_transcribed_text(message: types.Message, text: str, language: 
             response = accessibility_feature.get_info_text(language)
             keyboard = get_main_menu_keyboard(language)
             await message.answer(response, reply_markup=keyboard)
-        else:
+        elif any(keyword in text for keyword in qa_keywords):
             response = get_enhanced_response(text, str(user_id))
             keyboard = get_main_menu_keyboard(language)
             await message.answer(response, reply_markup=keyboard)
+        else:
+            from utils.llm_connector import query_llm
+
+            await message.answer("💬 Frage wird verarbeitet...")
+
+            llm_response = await query_llm(text, language)
+
+            if not llm_response or "Fehler" in llm_response:
+                llm_response = "❌ Leider konnte keine Antwort generiert werden."
+
+            keyboard = get_main_menu_keyboard(language)
+            await send_message_safe(message, llm_response, reply_markup=keyboard)
+
     except Exception as e:
         logger.error(f"Error processing transcribed text: {e}")
         error_msg = "❌ Fehler bei der Textverarbeitung" if language == "de" else "❌ Error processing text"
